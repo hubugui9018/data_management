@@ -1,0 +1,456 @@
+{% extends "app/base_site.html" %}
+
+{% block title %} 竞彩管理 {% endblock title %}
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+{% block stylesheets %}
+    {{ block.super }}
+    <link href="/static/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet">
+    <style>
+        .select {
+            display: inline-block;
+            height: 25px;
+            width: 150px;
+            position: relative;
+            vertical-align: middle;
+            padding: 0;
+            overflow: hidden;
+            background-color: #fff;
+            color: #555;
+            border: 1px solid #aaa;
+            text-shadow: none;
+            border-radius: 4px;
+            transition: box-shadow 0.25s ease;
+            z-index: 2;
+        }
+        .select:hover {
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        }
+        .select:before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            border-top-color: #ccc;
+            top: 14px;
+            right: 10px;
+            cursor: pointer;
+            z-index: -2;
+        }
+        .select select {
+            cursor: pointer;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            background: transparent;
+            background-image: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+        .select select:focus {
+            outline: none;
+        }
+    </style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="row">
+                <div class="page-title">
+                    <div class="col-md-12 col-lg-12 col-sm-12">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <h2>竞彩管理</h2>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="x_content">
+                                <a href="##" onclick="poptask('1')">球队信息录入</a>
+                                <a href="##" onclick="poptask('2')">广实区间录入</a>
+                                <a href="##" onclick="poptask('3')">区间赔率录入</a>
+                                <a href="##" onclick="filedown()">下载球队数据模板</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 col-lg-12 col-sm-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>球队表</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="page-title">
+                            <div class="col-md-12 col-lg-12 col-sm-12">
+                                <div class="x_panel">
+                                    <div class="x_content">
+                                        <span scope="col" colspan="6">
+                                            <form action="/jcanayls/searchQD/" method="get">
+                                                <select id="country" name="country" class="select">
+                                                            <option value="">请选择国家</option>
+                                                {% for country in countryList %}
+                                                    {% if countryName == country.country %}
+                                                        <option value="{{ country.country }}" selected>{{ country.country }}</option>
+                                                    {% else %}
+                                                        <option value="{{ country.country }}">{{ country.country }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </select>
+                                                <select id="liansai" name="liansai" class="select">
+                                                            <option value="">请选择联赛</option>
+                                                {% for liansai in liansaiList %}
+                                                    {% if liansaiName == liansai.liansai %}
+                                                        <option value="{{ liansai.liansai }}"
+                                                                selected>{{ liansai.liansai }}</option>
+                                                    {% else %}
+                                                        <option value="{{ liansai.liansai }}">{{ liansai.liansai }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </select>
+                                                <input id='selt' name='selt' type="button" class="button white medium" value="查询">
+                                            </form>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="x_content">
+                            <table id="datatable-responsive"
+                               class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0"
+                               width="100%">
+                            <thead>
+                            <tr>
+                                <th>编号</th>
+                                <th>球队名称</th>
+                                <th>联赛</th>
+                                <th>广实</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for r in qdList %}
+                                <tr>
+                                    <td>{{ r.id }}</td>
+                                    <td>{{ r.teamname }}</td>
+                                    <td>{{ r.liansai }}</td>
+                                    <td>{{ r.teamguangshi }}</td>
+                                    <td style="width: 120px">
+                                        <a href="javascript:void(0)" onclick="editQD({'qdID':'{{ r.id }}','csrfmiddlewaretoken':'{{ csrf_token }}'})">编辑</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <div class="poptask1" style="display: none">
+            <div class="graybox"></div>
+            <div class="popbox">
+                <div id="addqd" class="poptop">
+
+                </div>
+                <br/>
+                <div class="trow" id="upfile">
+                    <div class="x_content">
+                        <input class="button white medium"  onclick="fileupload()" value="上传"/>
+                        <a class="button white medium file" >选择接口文档<input type="file" name="file" id="file_upload" style="width:100px"></a>
+                        <label id="reviewfileName" name="reviewfileName">还未选择文件</label>
+                    </div>
+                </div>
+                <form onsubmit="return false" action="##" method="post">
+                <br/>
+                    <div id="qdinfo">
+
+                    </div>
+                    <div style="text-align: center">
+                        <input readonly onclick="submitData('1','/jcanayls/qiuduiinfo/','0')" class="button white medium"
+                               value="保存">
+                        <input readonly onclick="closePop('1')" class="button white medium" value="关闭"/>
+                    </div>
+                    <div>
+                        <span>
+                            <label style="height: 15px;"/>
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="poptask2" style="display: none">
+            <div class="graybox"></div>
+            <div class="popbox">
+                <div id="poptop" class="poptop">
+                    <h4>广实区间录入</h4>
+                </div>
+                <form onsubmit="return false" action="##" method="post">
+                    <br/>
+                    <div class="trow">
+                        <label for="zhuteam">主队:</label>
+                        <input type="text" name="zhuteam" id="zhuteam">
+                    </div>
+                    <div class="row" with="20"></div>
+                    <div class="trow">
+                        <label for="keteam">客队:</label>
+                        <input type="text" name="keteam" id="keteam">
+                    </div>
+                    <div class="trow">
+                        <label for="qujian">区间:</label>
+                        <input type="text" name="qujian" id="qujian">
+                    </div>
+                    <div style="text-align: center">
+                        <input readonly onclick="submitData('2','/jcanayls/guangshiqujian/','0')"
+                               class="button white medium"
+                               value="保存">
+                        <input readonly onclick="closePop('2')" class="button white medium" value="关闭"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="poptask3" style="display: none">
+            <div class="graybox"></div>
+            <div class="popbox">
+                <div id="poptop" class="poptop">
+                    <h4>区间赔率录入</h4>
+                </div>
+                <form onsubmit="return false" action="##" method="get">
+                    <br/>
+                    <div class="trow">
+                        <label for="qujan">区间: </label>
+                        <input type="text" name="qujan" value="" id="qujan">
+                    </div>
+                    <div class="trow">
+                        <label for="rangqiu">让球: </label>
+                        <input type="text" name="rangqiu" value="" id="rangqiu" placeholder="只能是英文">
+                    </div>
+                    <div class="trow">
+                        <label for="peilv">赔率: </label>
+                        <input type="text" name="peilv" value="" id="peilv">
+                    </div>
+                    <div class="trow">
+                        <label for="shuiwei">水位: </label>
+                        <input type="text" name="shuiwei" value="" id="shuiwei">
+                    </div>
+                    <div style="text-align: center">
+                        <input readonly onclick="submitData('3','/jcanayls/qujianpeilv/','0')"
+                               class="button white medium"
+                               value="保存">
+                        <input readonly onclick="closePop('3')" class="button white medium" value="关闭"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block javascripts %}
+
+    {{ block.super }}
+    <!-- Datatables -->
+    <script src="/static/vendors/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="/static/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/buttons.print.min.js"></script>
+    <script src="/static/vendors/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js"></script>
+    <script src="/static/vendors/datatables.net-keytable/js/dataTables.keyTable.min.js"></script>
+    <script src="/static/vendors/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/static/vendors/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+    <script src="/static/vendors/datatables.net-scroller/js/dataTables.scroller.min.js"></script>
+    <script src="/static/vendors/jszip/dist/jszip.min.js"></script>
+    <script src="/static/vendors/pdfmake/build/pdfmake.min.js"></script>
+    <script src="/static/vendors/pdfmake/build/vfs_fonts.js"></script>
+    <script src="/static/vendors/Chart.js/dist/Chart.min.js"></script>
+    {#    显示关联数据#}
+    <script>
+        $('#country').change(function () {
+            var countryName = $("#country").val();
+            var liansaiName = $("#liansai").val();
+            window.location.href = "/jcanayls/baseManage?countryName=" + countryName + "&liansaiName="+liansaiName
+        });
+        $('#selt').click(function () {
+            var countryName = $("#country").val();
+            var liansaiName = $("#liansai").val();
+            if (liansaiName == '') {
+                alert('请选择联赛')
+            }
+            else {
+                window.location.href = "/jcanayls/searchQD?countryName=" + countryName + "&liansaiName="+liansaiName
+            }
+        });
+    </script>
+    {#    显示页面，关闭页面并清除数据#}
+    <script>
+        function poptask(index) {
+            var val = '.poptask' + index;
+            switch(index){
+                case '1':
+                    $("#addqd").append("<h4>添加球队信息</h4>");
+                    var ss = "<input type='text' id='qdID' name='qdID'value=''style='display: none;'>" +
+                        "<div class='trow'><label for='qiuduiname'>球队名称 :</label><input type='text' id='qiuduiname' name='qiuduiname'></div>" +
+                        "<div></div><div class='trow'><label for='countryName'>球队国籍 :</label><input type='text' id='countryName' name='countryName'></div>" +
+                        "<div class='trow'><label for='country'>球队联赛 :</label><input type='text' id='liansaiName' name='liansaiName'></div>" +
+                        "<div class='trow'><label for='qdguangshi'>球队广实 :</label><input type='text' id='qdguangshi' name='qdguangshi'></div>";
+                    $('#qdinfo').append(ss)
+            }
+            $(val).show()
+        }
+        function clearData() {
+            $('#zhuteam').val('');
+            $('#keteam').val('');
+            $('#qujan').val('');
+            $('#qiuduiname').val('');
+            $('#countryName').val('');
+            $('#liansaiName').val('');
+            $('#qdguangshi').val('');
+            $('#qujian').val('');
+            $('#rangqiu').val('');
+            $('#peilv').val('');
+            $('#shuiwei').val('');
+            $('#reviewfileName').text('还未选择文件');
+            $('#file_upload').val('');
+        }
+        function closePop(index) {
+            var val = '.poptask' + index;
+            switch(index){
+                case "1":
+                    var addqd = document.getElementById('addqd');
+                    addqd.removeChild(addqd.childNodes[0]);
+                    $('#addqd').html('');
+                    $('#qdinfo').html('');
+                    $('#upfile').show()
+            }
+            clearData();
+            $(val).hide()
+        }
+    </script>
+    {#    #提交及编辑数据#}
+    <script>
+        function submitData(topv, url, rid) {
+            var qdID = '';
+            var formdata = new FormData();
+            switch (topv) {
+                case '1':
+                    var qiuduiname = $('#qiuduiname').val();
+                    var country = $('#countryName').val();
+                    var liansai = $('#liansaiName').val();
+                    var qdguangshi = $('#qdguangshi').val();
+                    var qdID = $('#qdID').val();
+                    formdata.append('qiuduiname', qiuduiname);
+                    formdata.append('country', country);
+                    formdata.append('liansai', liansai);
+                    formdata.append('qdguangshi', qdguangshi);
+                    formdata.append('qdID',qdID);
+                    formdata.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                    break;
+                case '2':
+                    var zhuteam = $('#zhuteam').val();
+                    var keteam = $('#keteam').val();
+                    var qujian = $('#qujian').val();
+                    formdata.append('zhuteam', zhuteam);
+                    formdata.append('keteam', keteam);
+                    formdata.append('qujian', qujian);
+                    formdata.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                    break;
+                case '3':
+                    var qujan = $('#qujan').val();
+                    var rangqiu = $('#rangqiu').val();
+                    var peilv = $('#peilv').val();
+                    var shuiwei = $('#shuiwei').val();
+                    formdata.append('qujan', qujan);
+                    formdata.append('rangqiu', rangqiu);
+                    formdata.append('peilv', peilv);
+                    formdata.append('shuiwei', shuiwei);
+                    formdata.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                    break;
+            }
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: formdata,
+                processData: false,   // jQuery不要去处理发送的数据
+                contentType: false,   // jQuery不要去设置Content-Type请求头
+                async:false,
+                success: function (data) {
+                    alert(data)
+                }
+            });
+            clearData();
+            if (qdID != ""){
+                closePop('1')
+            }
+        }
+        function editQD(param) {
+            var  ss="";
+            $.ajax({
+                type:'get',
+                url:'/jcanayls/searchQD/',
+                data:param,
+                async:false,
+                success: function (data) {
+                    var obj = JSON.parse(data);
+                    ss = "<input type='text' id='qdID' name='qdID'value='"+ obj[0].id +"'style='display: none;'>" +
+                        "<div class='trow'><label for='qiuduiname'>球队名称 :</label><input type='text' id='qiuduiname' name='qiuduiname'value='"+ obj[4].teamname +"'></div>" +
+                        "<div class='trow'><label for='country'>球队国籍 :</label><input type='text' id='countryName' name='countryName' value='" + obj[2].country + "'></div>" +
+                        "<div class='trow'><label for='country'>球队联赛 :</label><input type='text' id='liansaiName' name='liansaiName' value=" + obj[1].liansai + "></div>" +
+                        "<div class='trow'><label for='qdguangshi'>球队广实 :</label><input type='text' id='qdguangshi' name='qdguangshi' value='" + obj[3].teamguangshi + "'></div>"
+                }
+            });
+            $('#upfile').hide();
+            $("#addqd").append("<h4>编辑球队信息</h4>");
+            $('#qdinfo').append(ss);
+            $('.poptask1').show()
+        }
+
+    </script>
+    {# 上传下载   #}
+    <script>
+        function fileupload() {
+            var form_data = new FormData();
+            var file_info = $('#file_upload')[0].files[0];
+            form_data.append('file', file_info);
+            form_data.append('csrfmiddlewaretoken','{{ csrf_token }}');
+            $.ajax({
+                url: '/jcanayls/uploadFile/',
+                type: 'POST',
+                data: form_data,
+                processData: false,  // tell jquery not to process the data
+                contentType: false, // tell jquery not to set contentType
+                success: function (data) {
+                    alert(data)
+                }
+            });
+        }
+        $('#file_upload').change(function () {
+            $('#reviewfileName').text(this.files[0].name)
+        });
+
+        function filedown() {
+            var form_data = new FormData();
+            form_data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            $.ajax({
+                url: '/jcanayls/filedown/',
+                type: 'POST',
+                data: form_data,
+                processData: false,  // tell jquery not to process the data
+                contentType: false, // tell jquery not to set contentType
+                success: function (data) {
+                    if (data.status) {
+                        console.log(data.filePath, '文件下载中.....');
+                        window.location.href = data.filePath;
+                    }
+                }
+            });
+        }
+    </script>
+{% endblock javascripts %}
+

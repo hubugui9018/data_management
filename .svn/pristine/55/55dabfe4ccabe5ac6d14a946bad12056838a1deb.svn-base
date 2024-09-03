@@ -1,0 +1,43 @@
+{% extends "app/base_site.html" %}
+
+{% block title %} 登录 {% endblock title %}
+
+{% block stylesheets %}
+    {{ block.super }}
+    <!-- Animate.css -->
+    <link href="/static/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet">
+{% endblock stylesheets %}
+
+{% block body %}
+    <div>
+        <a class="hiddenanchor" id="signup"></a>
+        <a class="hiddenanchor" id="signin"></a>
+        <div class="login_wrapper">
+            <div class="animate form login_form">
+                <section class="login_content">
+                    <form action="/home/login/" method="post">
+                        {% csrf_token %}
+                        <h1>中彩网测试平台</h1>
+                        <div>
+                            <input type="text" class="form-control" name="username" placeholder="Username" required=""/>
+                        </div>
+                        <div>
+                            <input type="password" class="form-control" name="password" placeholder="Password" required=""/>
+                        </div>
+                        <div>
+                            <input class="btn btn-default submit"  type="submit" value="登录">
+                        </div>
+                        <div class="clearfix"></div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+    {% if message %}
+        <script>alert('{{ message }}')</script>
+    {% endif %}
+{% endblock body %}

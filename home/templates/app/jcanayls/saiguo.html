@@ -1,0 +1,361 @@
+{% extends "app/base_site.html" %}
+
+{% block title %}{{ mod_name }} 竞彩分析 {% endblock title %}
+
+{% block stylesheets %}
+    {{ block.super }}
+    <link href="/static/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/jq-zoomify/src/zoomify.css" rel="stylesheet">
+    <style>
+        .select {
+            display: inline-block;
+            height: 25px;
+            width: 150px;
+            position: relative;
+            vertical-align: middle;
+            padding: 0;
+            overflow: hidden;
+            background-color: #fff;
+            color: #555;
+            border: 1px solid #aaa;
+            text-shadow: none;
+            border-radius: 4px;
+            transition: box-shadow 0.25s ease;
+            z-index: 2;
+        }
+
+        .select:hover {
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .select:before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            border-top-color: #ccc;
+            top: 14px;
+            right: 10px;
+            cursor: pointer;
+            z-index: -2;
+        }
+
+        .select select {
+            cursor: pointer;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            background: transparent;
+            background-image: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        .select select:focus {
+            outline: none;
+        }
+    </style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <div class="x_content">
+                                <div class="x_title" align="left">
+                                    <div class="x_content">
+                                        <select width='110' id="uptateDate" name="uptateDate" class="select">
+                                            {% for ls in qicilist %}
+                                                {% if qici == ls.qici %}
+                                                    <option value="{{ ls.qici }}" selected>{{ ls.qici }}</option>
+                                                {% else %}
+                                                    <option value="{{ ls.qici }}">{{ ls.qici }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        <input id="update" class="button white medium " value="更新赛果"
+                                               onclick="saiguodata()" readonly>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </div>
+                            <div class="x_content">
+                                <input type="date" id="startDate" value="{{ sdata }}"/>
+                                <input type="date" id="endDate" value="{{ edata }}"/>
+                                <select width='110' id="lsname" name="lsname" class="select">
+                                    <option value="">选择联赛</option>
+                                    {% for ls in liansaiList %}
+                                        {% if lsName == ls.liansai %}
+                                            <option value="{{ ls.liansai }}" selected>{{ ls.liansai }}</option>
+                                        {% else %}
+                                            <option value="{{ ls.liansai }}">{{ ls.liansai }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <select width='110' id="saigou" name="saigou" class="select">
+                                    <option value="">选择赛果</option>
+                                    {% for sg in saigouList %}
+                                        {% if saigou == sg %}
+                                            <option value="{{ sg }}" selected>{{ sg }}</option>
+                                        {% else %}
+                                            <option value="{{ sg }}">{{ sg }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <input class="button white medium addinter" value="查询" onclick="vsprase()" readonly>
+                                <input class="button white medium addinter" value="更新球队历史" onclick="updataTeampm()" readonly>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 col-lg-12 col-sm-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>比赛列表</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <table id="datatable-responsive"
+                                   class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0"
+                                   width="100%">
+                                <thead>
+                                <tr>
+                                    <th style="text-align:center">赛事</th>
+                                    <th style="text-align:center;width: 100px;">主队</th>
+                                    <th style="text-align:center;width: 100px;">客队</th>
+                                    <th style="text-align:center">比赛时间</th>
+                                    <th style="text-align:center;width: 70px;">比分</th>
+                                    <th style="text-align:center;width: 200px;">威廉</th>
+                                    <th style="text-align:center;width: 200px;">立博</th>
+                                    <th style="text-align:center;width: 50px;">操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for d in dataList %}
+                                    <tr>
+                                        <td style="white-space: nowrap;overflow: hidden;text-overflow:ellipsis;">{{ d.liansai }}</td>
+                                        <td style="white-space: nowrap;overflow: hidden;text-overflow:ellipsis;">{{ d.zhudui }}</td>
+                                        <td style="white-space: nowrap;overflow: hidden;text-overflow:ellipsis;">{{ d.kedui }}</td>
+                                        <td style="white-space: nowrap;overflow: hidden;text-overflow:ellipsis;">{{ d.vstime }}</td>
+                                        <td style="white-space: nowrap;overflow: hidden;text-overflow:ellipsis;" id="{{d.id}}"></td>
+                                        <td style="white-space: nowrap;overflow: hidden;text-overflow:ellipsis;">{{ d.weilian }}</td>
+                                        <td style="white-space: nowrap;overflow: hidden;text-overflow:ellipsis;">{{ d.libo }}</td>
+                                        <td style="white-space: nowrap;overflow: hidden;text-overflow:ellipsis;"><a id="parase" href="javascript:void(0)"
+                                                                         onclick="vsinfo('{{ d.id }}','{{ d.bifen }}',{'matchId':'{{ d.matchId }}','qici':'{{ d.qici }}','csrfmiddlewaretoken':'{{ csrf_token }}'})">查看</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='mypop' style='display: none'>
+                <div class="graybox"></div>
+                <div class="popbox">
+                    <div class="popcon">
+                        <div class="x_title">
+                            <h2>分析结果</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <table id="datatable-responsive"
+                                   class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0"
+                                   width="100%" style="table-layout: fixed;">
+                                <thead>
+                                <tr>
+                                    <th style="text-align:center;width:70px">区间</th>
+                                    <th style="text-align:center;width:100px">赔率</th>
+                                    <th colspan="2" style="text-align:center;width:400px">对比</th>
+                                </tr>
+                                </thead>
+                                <tbody id="lsparase"></tbody>
+                            </table>
+                            <div class="popdown" id="popdown">
+                                <td><input readonly class="button white medium" value="关闭" id="parseclose"/></td>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='loadpop' style='display: none'>
+                <div class="graybox"></div>
+                <div class="popbox">
+                    <div class="popcon">
+                        <div id="jjjd" style="text-align:center">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block javascripts %}
+    {{ block.super }}
+    <!-- Chart.js -->
+    <script src="/static/vendors/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="/static/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/buttons.print.min.js"></script>
+    <script src="/static/vendors/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js"></script>
+    <script src="/static/vendors/datatables.net-keytable/js/dataTables.keyTable.min.js"></script>
+    <script src="/static/vendors/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/static/vendors/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+    <script src="/static/vendors/datatables.net-scroller/js/dataTables.scroller.min.js"></script>
+    <script src="/static/vendors/jszip/dist/jszip.min.js"></script>
+    <script src="/static/vendors/pdfmake/build/pdfmake.min.js"></script>
+    <script src="/static/vendors/pdfmake/build/vfs_fonts.js"></script>
+    <script src="/static/vendors/Chart.js/dist/Chart.min.js"></script>
+    <script src="/static/vendors/jq-zoomify/src/zoomify.js"></script>
+    <script>
+        function vsprase() {
+            var startDate = $("#startDate").val();
+            var endDate = $("#endDate").val();
+            var lsname = $("#lsname").val();
+            var saiguo = $("#saigou").val();
+            window.location.href = "/jcanayls/searchsaigou?startDate=" + startDate + "&endDate=" + endDate
+                + "&lsname=" + lsname + "&saigou=" + saiguo
+        }
+
+        function updataTeampm() {
+            $.ajax({
+                type:'get',
+                url:'/jcanayls/teamHistory/',
+                data:{},
+                asyn:false,
+                success:function (data) {
+                    alert(data)
+                }
+            })
+        }
+
+        function saiguodata() {
+            var uptateDate = $("#uptateDate").val();
+            $.ajax({
+                type: 'Post',
+                url: '/jcanayls/saiguo/',
+                data: {'csrfmiddlewaretoken': '{{ csrf_token }}', 'uptateDate': uptateDate},
+                asyn: false,
+                success: function (data) {
+                    alert(data)
+                }
+            });
+        }
+
+    </script>
+    <script>
+        function sleep(n) {
+            var start = new Date().getTime();
+            //  console.log('休眠前：' + start);
+            while (true) {
+                if (new Date().getTime() - start > n) {
+                    break;
+                }
+            }
+            // console.log('休眠后：' + new Date().getTime());
+        }
+        saiguoID = '';
+        saiguo = '';
+        function vsinfo(saiguoid,bf,param) {
+            saiguoID = saiguoid;
+            saiguo = bf;
+            $.ajax({
+                type: "POST",
+                url: "/jcanayls/lookUpResult/",
+                data: param,
+                beforeSend: function () {
+                    $("#jjjd").html(" <label style=\"margin-left:auto;margin-right:auto\">数据加载中，请稍后.....</label>");
+                    $('.loadpop').show()
+
+                },
+                success: function (data) {
+
+
+                    var obj1 = eval(data);
+                    $.each(obj1, function (index) {
+                        var d = obj1[index];
+                        if (index == 0) {
+                            s = "<tr><td>" + d.qujian + "</td>"
+                        } else if (index == 1) {
+                            var t = "";
+                            var pl = d.peilv.split(";");
+                            s = s + "<td>";
+                            for (var i = 0; i < pl.length; i++) {
+                                t = t + "<p>" + pl[i] + "</p>"
+                            }
+                            s = s + t + "</td>"
+                        } else if (index == 2) {
+                            var t = "";
+                            s = s + "<td colspan='2'>";
+                            for (var i = 0; i < d.content.length; i++) {
+                                t = t + "<p>" + d.content[i] + "</p>"
+                            }
+                            s = s + t + "</td></tr>"
+                        } else if (index == 3) {
+                            s = s + "<tr><td colspan='2'>" + d.weilian + "</td>"
+                        } else if (index == 4) {
+                            s = s + "<td >" + d.libo + "</td>"
+                        } else if (index == 5) {
+                            s = s + "<td style='display: none' id='resval'>" + d.resutl + "</td>" +
+                                "<td style='cursor:hand' id='show'>显示</td></tr>"
+                        } else if (index == 6) {
+                            s = s + "<tr type='hidden'><td colspan ='4'><input readonly value=" + d.sid + " id='sid' type='hidden'/>"
+                        } else {
+                            s = s + "<tr><td colspan='4'><textarea style='margin: 0px; width: 670px; height: 100px; line-height: 16px;' id='bodystr' name='bodyStr'>" + d.pinglun + "</textarea></td></tr>"
+                        }
+                    });
+                    $("#lsparase").append(s);
+                    $(".loadpop").hide();
+
+                },
+                complete: function () {
+                    $("#jjjd").html(" <label style=\"margin-left:auto;margin-right:auto\">完成</label>");
+                    sleep(2000);
+                    $(".loadpop").hide();
+                    $("#jjjd").html(" <label style=\"margin-left:auto;margin-right:auto\">数据加载中，请稍后.....</label>");
+                    $(".mypop").show()
+                },
+            })
+        }
+        $(document).on('click','#show',function () {
+            $('#resval').show();
+            $('#show').hide()
+        });
+        $(document).on('click', '#parseclose', function () {
+            var pinglun = $("#bodystr").val();
+            var sid = $("#sid").val();
+            $.ajax({
+                type: 'Post',
+                url: '/jcanayls/savepinglun/',
+                data: {'csrfmiddlewaretoken': '{{ csrf_token }}', 'pinglun': pinglun, 'sid': sid},
+                asyn: false,
+                success: function (data) {
+
+                }
+            });
+            var lsparase = document.getElementById('lsparase');
+            for (var i = 0; i < lsparase.childElementCount;) {
+                lsparase.removeChild(lsparase.childNodes[i])
+            }
+            $('.mypop').hide();
+            $('#'+saiguoID+'').text(saiguo)
+        })
+    </script>
+{% endblock javascripts %}

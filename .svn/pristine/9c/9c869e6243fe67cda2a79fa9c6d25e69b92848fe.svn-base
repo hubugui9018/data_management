@@ -1,0 +1,407 @@
+{% extends "app/base_site.html" %}
+
+{% block title %} 测试用例 {% endblock title %}
+
+{% block stylesheets %}
+    {{ block.super }}
+    <link href="/static/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+        table {
+            width: 1000px;
+            table-layout: fixed;
+        }
+
+        td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        input {
+            border-radius: 4px;
+            padding-left: 2px;
+        }
+
+        .select {
+            display: inline-block;
+            width: 150px;
+            height: 25px;
+            position: relative;
+        {#vertical-align: middle;#} padding: 0;
+            overflow: hidden;
+            background-color: #fff;
+            color: #555;
+            border: 2px solid #1e1a1a;
+            text-shadow: none;
+            border-radius: 4px;
+            transition: box-shadow 0.25s ease;
+            z-index: 2;
+        }
+
+        .select:hover {
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .select:before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            border-top-color: #ccc;
+            top: 14px;
+            right: 10px;
+            cursor: pointer;
+            z-index: -2;
+        }
+
+        .select select {
+            cursor: pointer;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            background: transparent;
+            background-image: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        .select select:focus {
+            outline: none;
+        }
+    </style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="addtaskpop" style="display: none">
+                <div class="graybox"></div>
+                <div class="popbox">
+                    <div class="poptop" id="taskpname">
+
+                    </div>
+                    <form action="" method="get">
+                        <div class="popcon">
+                            <div class="row" style="margin-top: 10px">
+                                任务名 <input type="text" name="taskName" id="taskName" value=""/>
+                            </div>
+                            <div class="row" style="margin-top: 10px">
+                                <label>任务状态</label>
+                                <select id="taskMethod" name="taskMethod" class="select radius mr-10"
+                                        style="width: 20%">
+
+                                </select>
+                            </div>
+                            <div class="row" style="margin-top: 10px">
+                                方法参数 <input type="text" name="methodparam" id="methodparam" value=""/>
+                            </div>
+                            <div class="row">
+                                任务启动时间 <input name="startDate" type="text" id="startDate"
+                                              onclick="SetDate(this,'yyyy-MM-dd hh:mm:ss')" readonly="readonly"/>
+                            </div>
+                            <div id="cron" style="display: block">
+                                <div class="row" style="margin-top: 10px">
+                                    <label>Corn设置</label>
+                                    <input id="crondate" name="cron" type="text" value=""
+                                           placeholder="year|month|day|week|day_of_week|hours|minutes|seconds">
+                                    <label style="color: red"> *
+                                        year|month|day|week|day_of_week|hours|minutes|seconds</label>
+                                </div>
+                            </div>
+                            <div id="taskEnd" class="row" style="margin-top: 10px">
+                                <label>任务结束时间</label>
+                                <input name="endDate" type="text" id="endDate"
+                                       onclick="SetDate(this,'yyyy-MM-dd hh:mm:ss')" readonly="readonly"/>
+                            </div>
+                            <div id="tasks" class="row" style="margin-top: 10px">
+                                <label>任务状态</label>
+                                <select id="taskstate" name="taskstate" class="select radius mr-10"
+                                        style="width: 20%">
+                                    <option value="启用" selected>启用</option>
+                                    <option value="禁用">禁用</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="popdown">
+                            <input class="button white medium" value="保存" onclick="addtask();" readonly/>
+                            <input class="button white medium" id="taskaddClose" value="关闭" readonly/>
+                            <input class="button white medium" id="taskid" value="" style="display: none" readonly/>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="clearfix"></div>
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h4>任务配置中心</h4>
+                        </div>
+                        <div class="x_content">
+                            <span scope="col" colspan="6">
+                                <input type="date" id="sdate" name="sdate"/>
+                                <select id="taskname" name="taskname" class="select">
+                                            <option value="0">请选择任务</option>
+                                    {% for name in tasklist %}
+                                        {% if taskname == name.id %}
+                                            <option value="{{ name.id }}" selected>{{ name.taskName }}</option>
+                                        {% else %}
+                                            <option value="{{ name.id }}">{{ name.taskName }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <input value="查询" id="search" class="button white medium" readonly>
+                                <input class="button white medium" id="taskadd" value="添加" readonly/>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_content">
+                            <table id="datatable-responsive"
+                                   class="table table-striped table-bordered dt-responsive" cellspacing="0"
+                                   width="100%" style="table-layout:fixed;">
+                                <thead>
+                                <tr>
+                                    <th style="wtext-align: center">任务名称</th>
+                                    <th style="width:150px;text-align: center">执行函数</th>
+                                    <th style="width:40px;text-align: center">参数</th>
+                                    <th style="width:40px;text-align: center">类型</th>
+                                    <th style="width:250px;text-align: center">触发器配置</th>
+                                    <th style="width:40px;text-align: center">状态</th>
+                                    <th style="width:200px;text-align: center">下次执行时间</th>
+                                    <th style="width:180px;text-align: center">操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for r in tasklist %}
+                                    <tr id="{{ r.id }}">
+                                        <td style="white-space: nowrap;overflow: hidden;text-overflow:ellipsis;">{{ r.taskName }}</td>
+                                        <td style="white-space: nowrap;overflow: hidden;text-overflow:ellipsis;"
+                                            title="{{ r.funcMothed }}">{{ r.funcMothed }}</td>
+                                        <td style="white-space: nowrap;overflow: hidden;text-overflow:ellipsis;">{{ r.funcparam }}</td>
+                                        <td style="white-space: nowrap;overflow: hidden;text-overflow:ellipsis;">{{ r.taskType }}</td>
+                                        <td style="white-space: nowrap;overflow: hidden;text-overflow:ellipsis;"
+                                            title="{{ r.runDate }}">{{ r.runDate }}</td>
+                                        <td style="white-space: nowrap;overflow: hidden;text-overflow:ellipsis;">{{ r.taskState }}</td>
+                                        <td style="white-space: nowrap;overflow: hidden;text-overflow:ellipsis;">{{ r.nexttime }}</td>
+                                        <td style="white-space: nowrap;overflow: hidden;text-overflow:ellipsis;">
+                                            <input class="button white small" id="modytask"
+                                                   onclick="modytask({{ r.id }})" value="编辑" readonly/>
+                                            <input class="button white small" id="modytask"
+                                                   onclick="runtask({{ r.id }})" value="执行" readonly/>
+                                            <input class="button white small" id="modytask"
+                                                   onclick="deltask({{ r.id }})" value="删除" readonly/>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock content %}
+{% block javascripts %}
+
+    {{ block.super }}
+    <!-- Datatables -->
+    <script src="/static/vendors/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="/static/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/buttons.print.min.js"></script>
+    <script src="/static/vendors/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js"></script>
+    <script src="/static/vendors/datatables.net-keytable/js/dataTables.keyTable.min.js"></script>
+    <script src="/static/vendors/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/static/vendors/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+    <script src="/static/vendors/datatables.net-scroller/js/dataTables.scroller.min.js"></script>
+    <script src="/static/vendors/jszip/dist/jszip.min.js"></script>
+    <script src="/static/vendors/pdfmake/build/pdfmake.min.js"></script>
+    <script src="/static/vendors/pdfmake/build/vfs_fonts.js"></script>
+    <script src="/static/vendors/Chart.js/dist/Chart.min.js"></script>
+    <script src="/static/vendors/webdate/mycalendar.js"></script>
+    <script>
+
+        {#添加定时任务        #}
+
+        function addtask() {
+            var formdata = new FormData();
+            var taskName = $("#taskName").val();
+            var taskMethod = $("#taskMethod").val();
+            var startDate = $("#startDate").val();
+            var endDate = $("#endDate").val();
+            var methodparam = $("#methodparam").val();
+            var cron = $('#crondate').val();
+            var taskstate = $('#taskstate').val();
+            var taskid = $('#taskid').val();
+            formdata.append('taskName', taskName);
+            formdata.append('taskMethod', taskMethod);
+            formdata.append('startDate', startDate);
+            formdata.append('endDate', endDate);
+            formdata.append('cron', cron);
+            formdata.append('methodparam', methodparam);
+            formdata.append('taskstate', taskstate);
+            formdata.append('taskid', taskid);
+            formdata.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            $.ajax({
+                type: "post",
+                url: "/taskmanage/addTask/",
+                data: formdata,
+                processData: false,
+                contentType: false,
+                asyn: false,
+                success: function (data) {
+                    alert(data)
+                }
+            });
+        }
+
+        {#回显数据#}
+
+        function modytask(id) {
+            var formdata = new FormData();
+            formdata.append('id', id);
+            formdata.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            $.ajax({
+                type: "post",
+                url: "/taskmanage/recvTask/",
+                data: formdata,
+                processData: false,
+                contentType: false,
+                asyn: false,
+                success: function (data) {
+
+                    if (data != '') {
+                        var obj = eval(data);
+                        $('#taskid').val(obj.id);
+                        $("#taskName").val(obj.taskName);
+                        $("#taskMethod").val();
+                        var ss = '';
+                        var obj1 = eval(obj.funcmotheds);
+                        $.each(obj1, function (index) {
+                            if (obj.funcMothed == obj1[index]) {
+                                ss = ss + '<option value="' + obj1[index] + '" selected>' + obj1[index] + '</option>';
+                            } else {
+                                ss = ss + '<option value="' + obj1[index] + '">' + obj1[index] + '</option>';
+                            }
+                        });
+                        $('#taskMethod').html(ss);
+                        $("#startDate").val(obj.sdate);
+                        $("#endDate").val(obj.edate);
+                        $("#methodparam").val(obj.funcparam);
+                        $('#taskstate').val(obj.taskState);
+                        $('#crondate').val(obj.runDate);
+                        $("#taskpname").html('<h4>编辑定时任务</h4>');
+                        $('.addtaskpop').show();
+                    } else {
+                        alert('error')
+                    }
+
+                }
+            });
+        }
+
+        {#执行定时任务#}
+
+        function runtask(taskid) {
+            var formdata = new FormData();
+            formdata.append('id', taskid);
+            formdata.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            $.ajax({
+                type: "post",
+                url: "/taskmanage/startTask/",
+                data: formdata,
+                processData: false,
+                contentType: false,
+                asyn: false,
+                success: function (data) {
+                    alert(data);
+                }
+            });
+        }
+
+        {#删除定时任务#}
+
+        function deltask(taskid) {
+            var formdata = new FormData();
+            formdata.append('id', taskid);
+            formdata.append('del', '1');
+            formdata.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            $.ajax({
+                type: "post",
+                url: "/taskmanage/taskManage/",
+                data: formdata,
+                processData: false,
+                contentType: false,
+                asyn: false,
+                success: function (data) {
+                    if (data == '删除完成') {
+                        $("#" + taskid + "\"").hide();
+                    }
+                    alert(data)
+                }
+            });
+        }
+
+
+        $(document).ready(function () {
+
+            $('#taskClose').click(function () {
+                $('.mypop').hide();
+            });
+            $('#taskadd').click(function () {
+                $("#taskpname").html('<h4>添加定时任务</h4>');
+
+                $.ajax({
+                    type: "get",
+                    url: "/taskmanage/gettaskname/",
+                    processData: false,
+                    contentType: false,
+                    asyn: false,
+                    success: function (data) {
+                        var ss = '';
+                        var obj = eval(data);
+                        $.each(obj, function (index) {
+                            ss = ss + '<option value="' + obj[index] + '">' + obj[index] + '</option>';
+                        });
+                        $('#taskMethod').html(ss);
+                    }
+                });
+                $('.addtaskpop').show();
+            });
+            $('#taskaddClose').click(function () {
+                $("#taskName").val('');
+                $("#taskMethod").val('');
+                $("#startDate").val('');
+                $("#endDate").val('');
+                $("#methodparam").val('');
+                $('#crondate').val('');
+                $('.addtaskpop').hide();
+            });
+
+            $("#search").click(function () {
+                var taskname = $("#taskname").val();
+                var sdate = $("#sdate").val();
+                window.location.href = '/taskmanage/taskManage?taskname=' + taskname + '&sdate=' + sdate
+            });
+
+        });
+
+
+    </script>
+
+{% endblock javascripts %}

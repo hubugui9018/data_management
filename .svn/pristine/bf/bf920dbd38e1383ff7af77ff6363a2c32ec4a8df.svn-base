@@ -1,0 +1,542 @@
+#toggle-button {
+    display: none;
+}
+
+.button-label {
+    position: relative;
+    display: inline-block;
+    width: 35px;
+    height: 20px;
+    background-color: #ccc;
+    box-shadow: #ccc 0px 0px 0px 2px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.text-label {
+    position: relative;
+    display: inline-block;
+    font-size: 13px;
+    height: 25px;
+    overflow: hidden;
+}
+
+.circle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #fff;
+}
+
+.button-label .text {
+    line-height: 25px;
+    font-size: 13px;
+    text-shadow: 0 0 2px #ddd;
+}
+
+.button-label .circle {
+    left: 0;
+    transition: all 0.3s;
+}
+
+#toggle-button:checked + label.button-label .circle {
+    left: 15px;
+}
+
+#toggle-button:checked + label.button-label {
+    background-color: #51ccee;
+}
+
+.demo {
+    width: 760px;
+    margin: 20px auto 0 auto;
+    height: 70px;
+}
+
+.button {
+    display: inline-block;
+    outline: none;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    font: 16px/100% 'Microsoft yahei', Arial, Helvetica, sans-serif;
+    padding: .5em 1em .55em;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, .3);
+    -webkit-border-radius: .5em;
+    -moz-border-radius: .5em;
+    border-radius: .5em;
+    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
+    -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
+}
+
+.button:hover {
+    text-decoration: none;
+}
+
+.button:active {
+    position: relative;
+    top: 1px;
+}
+
+.bigrounded {
+    -webkit-border-radius: 2em;
+    -moz-border-radius: 2em;
+    border-radius: 2em;
+}
+
+.medium {
+    font-size: 12px;
+    padding: .4em .5em .42em;
+}
+
+.small {
+    font-size: 11px;
+    padding: .2em 1em .275em;
+    width: 50px;
+}
+
+
+/* blue */
+.blue {
+    color: #d9eef7;
+    border: solid 1px #0076a3;
+    background: #0095cd;
+    background: -webkit-gradient(linear, left top, left bottom, from(#00adee), to(#0078a5));
+    background: -moz-linear-gradient(top, #00adee, #0078a5);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00adee', endColorstr='#0078a5');
+}
+
+.blue:hover {
+    background: #007ead;
+    background: -webkit-gradient(linear, left top, left bottom, from(#0095cc), to(#00678e));
+    background: -moz-linear-gradient(top, #0095cc, #00678e);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#0095cc', endColorstr='#00678e');
+}
+
+.blue:active {
+    color: #80bed6;
+    background: -webkit-gradient(linear, left top, left bottom, from(#0078a5), to(#00adee));
+    background: -moz-linear-gradient(top, #0078a5, #00adee);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#0078a5', endColorstr='#00adee');
+}
+
+/* green */
+.green {
+    color: #e8f0de;
+    border: solid 1px #538312;
+    background: #64991e;
+    background: -webkit-gradient(linear, left top, left bottom, from(#7db72f), to(#4e7d0e));
+    background: -moz-linear-gradient(top, #7db72f, #4e7d0e);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#7db72f', endColorstr='#4e7d0e');
+}
+
+.green:hover {
+    background: #538018;
+    background: -webkit-gradient(linear, left top, left bottom, from(#6b9d28), to(#436b0c));
+    background: -moz-linear-gradient(top, #6b9d28, #436b0c);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#6b9d28', endColorstr='#436b0c');
+}
+
+.green:active {
+    color: #a9c08c;
+    background: -webkit-gradient(linear, left top, left bottom, from(#4e7d0e), to(#7db72f));
+    background: -moz-linear-gradient(top, #4e7d0e, #7db72f);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#4e7d0e', endColorstr='#7db72f');
+}
+
+/* white */
+.white {
+    color: #606060;
+    border: solid 1px #b7b7b7;
+    background: #fff;
+    background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ededed));
+    background: -moz-linear-gradient(top, #fff, #ededed);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#ededed');
+}
+
+.white:hover {
+    background: #ededed;
+    background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#dcdcdc));
+    background: -moz-linear-gradient(top, #fff, #dcdcdc);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#dcdcdc');
+}
+
+.white:active {
+    color: #999;
+    background: -webkit-gradient(linear, left top, left bottom, from(#ededed), to(#fff));
+    background: -moz-linear-gradient(top, #ededed, #fff);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#ffffff');
+}
+
+/* orange */
+.orange {
+    color: #fef4e9;
+    border: solid 1px #da7c0c;
+    background: #f78d1d;
+    background: -webkit-gradient(linear, left top, left bottom, from(#faa51a), to(#f47a20));
+    background: -moz-linear-gradient(top, #faa51a, #f47a20);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#faa51a', endColorstr='#f47a20');
+}
+
+.orange:hover {
+    background: #f47c20;
+    background: -webkit-gradient(linear, left top, left bottom, from(#f88e11), to(#f06015));
+    background: -moz-linear-gradient(top, #f88e11, #f06015);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f88e11', endColorstr='#f06015');
+}
+
+.orange:active {
+    color: #fcd3a5;
+    background: -webkit-gradient(linear, left top, left bottom, from(#f47a20), to(#faa51a));
+    background: -moz-linear-gradient(top, #f47a20, #faa51a);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f47a20', endColorstr='#faa51a');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Glyphicons Halflings", "Microsoft YaHei";
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+a, a:hover, label, input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.clearfix:after {
+    content: '';
+    height: 0;
+    display: block;
+    visibility: hidden;
+    clear: both;
+}
+
+.clearfix {
+    zoom: 1;
+}
+
+a {
+    text-decoration: none;
+}
+
+button {
+    width: 180px;
+    height: 36px;
+    line-height: 36px;
+    text-align: center;
+    border-radius: 6px;
+    border: none;
+    background: linear-gradient(#749dcf, #1c7ecf);
+    color: #FFFFff;
+    cursor: pointer;
+    outline: none;
+}
+
+button:hover {
+    background: #1c7ecf;
+    cursor: pointer;
+}
+
+.graybox {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, .6);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9;
+}
+
+.popbox {
+    width: 800px;
+    padding-bottom: 30px;
+    border-radius: 6px;
+    background: #FFFFff;
+    position: absolute;
+    left: 40%;
+    margin-left: -250px;
+    top: 60%;
+    z-index: 19;
+}
+
+.popbox2 {
+    width: 1300px;
+    padding-bottom: 30px;
+    border-radius: 6px;
+    background: #FFFFff;
+    position: absolute;
+    left: 10%;
+    /*margin-left: -100px;*/
+    top: 5%;
+    z-index: 19;
+}
+
+.trow1 {
+    height: 120px;
+    line-height: 7px;
+    padding: 15px 130px;
+    font-family: 宋体;
+    font-size: 13px;
+}
+
+.trowb {
+    height: 120px;
+    line-height: 50px;
+    padding: 50px 130px;
+    font-family: 宋体;
+    font-size: 13px;
+}
+
+.trow2 {
+    height: 70px;
+    line-height: 20px;
+    padding: 10px 10px;
+    font-family: 宋体;
+    font-size: 13px;
+}
+
+.trow {
+    height: 50px;
+    line-height: 20px;
+    padding: 10px 80px;
+    font-family: 宋体;
+    font-size: 13px;
+}
+
+.tttrow {
+    line-height: 30px;
+    padding: 30px 80px;
+    font-family: 宋体;
+    font-size: 13px;
+}
+
+.tfrow {
+    line-height: 10px;
+    padding: 0px 0px;
+    font-family: 宋体;
+    font-size: 13px;
+}
+
+.frow {
+    height: 50px;
+    line-height: 20px;
+    padding: 10px 20px;
+    font-family: 宋体;
+    font-size: 13px;
+}
+
+.ttrow1 {
+    height: 10px;
+    line-height: 20px;
+    padding: 0px 350px;
+    font-family: 宋体;
+    font-size: small;
+    margin-top: 60px;
+}
+
+.ttrow {
+    height: 10px;
+    line-height: 20px;
+    padding: 0px 250px;
+    font-family: 宋体;
+    font-size: small;
+    margin-top: 30px;
+}
+
+.poptop {
+    width: 100%;
+    height: 30px;
+    line-height: 40px;
+    text-align: center;
+    border-bottom: 1px solid #F2F2F2;
+    position: relative;
+}
+
+.popdown {
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    border-bottom: 1px solid #F2F2F2;
+    position: relative;
+}
+
+.poptop h3 {
+    font-size: 32px;
+    font-weight: 600;
+    color: #749dcf;
+}
+
+.poptop a.close {
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 20px;
+    font-weight: bold;
+    width: 36px;
+    height: 36px;
+}
+
+.popcon {
+    padding: 20px 50px;
+}
+
+.popcon .group {
+    position: relative;
+}
+
+.popcon .group input[type="text"] {
+    color: #999999;
+}
+
+.popcon .group i {
+    position: absolute;
+    left: 12px;
+    top: 28px;
+    font-size: 20px;
+    color: #bbbbbb;
+}
+
+.popcon input[type="text"] {
+    width: 40%;
+    height: 30px;
+    line-height: 25px;
+    border-radius: 10px;
+    margin-top: 1px;
+    padding: 0 10px 0 20px;
+    border: none;
+    background: #f0f0f0;
+}
+
+.popcon input:focus {
+    outline: none;
+    background: #DDDDDD;
+}
+
+/*点击输入框之后图标颜色改变*/
+.popcon .group input:focus + i {
+    color: #749dcf;
+}
+
+.popcon .remember {
+    font-size: 12px;
+    margin-top: 15px;
+    color: #749dcf;
+}
+
+.popcon .remember .remember-con {
+    width: 50%;
+    display: block;
+    float: left;
+}
+
+.popcon input[type="checkbox"] {
+    vertical-align: -1px;
+    margin-right: -2px;
+}
+
+/*自定义checked样式*/
+.popcon .remember .inputbox {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    border: 1px solid #749dcf;
+    background: #FFFFff;
+}
+
+/*自定义checked选中之后的样式*/
+.popcon .remember .inputbox:checked {
+    border: 1px solid #749dcf;
+    cursor: pointer;
+}
+
+.popcon .remember .code {
+    display: block;
+    float: right;
+    font-size: 14px;
+    color: #749dcf;
+}
+
+.popcon .remember .code:hover {
+    text-decoration: underline;
+    color: #749dcf;
+}
+
+.popcon .remember .fa-question-circle {
+    color: #749dcf;
+    margin-right: 3px;
+}
+
+.divbtn {
+    width: 260px;
+    margin: 20px auto 0;
+}
+
+.divbtn .btn {
+    display: block;
+    float: left;
+    width: 120px;
+    height: 36px;
+    line-height: 36px;
+    text-align: center;
+    border-radius: 6px;
+    background: #eeeeee;
+    color: #464646;
+}
+
+.divbtn .btn:hover {
+    background: #DDDDDD;
+}
+
+.divbtn .ok {
+    background: #749dcf;
+    margin-left: 20px;
+    color: #FFFFff;
+}
+
+.divbtn .ok:hover {
+    background: #5e8ecf;
+}
+
+.login-button { /* 按钮美化 */
+    width: 1000px; /* 宽度 */
+    height: 100px; /* 高度 */
+    border-width: 100px; /* 边框宽度 */
+    border-radius: 5px; /* 边框半径 */
+    background: #1E90FF; /* 背景颜色 */
+    cursor: pointer; /* 鼠标移入按钮范围时出现手势 */
+    outline: none; /* 不显示轮廓线 */
+    font-family: Microsoft YaHei; /* 设置字体 */
+    color: white; /* 字体颜色 */
+    font-size: 19px; /* 字体大小 */
+}
+
+.login-button:hover { /* 鼠标移入按钮范围时改变颜色 */
+    background: #5599FF;
+}
+
+.file {
+    text-decoration: none;
+    text-indent: 0;
+    line-height: 15px;
+}
+
+.file input {
+    position: absolute;
+    /*font-size: 100px;*/
+    top: 0;
+    opacity: 0;
+}
+
+.file:hover {
+    background: #AADFFD;
+    color: #004974;
+    text-decoration: none;
+}

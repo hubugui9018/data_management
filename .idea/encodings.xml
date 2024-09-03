@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding" defaultCharsetForPropertiesFiles="UTF-8">
+    <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/7b369033-fe40-4f96-8c54-c2756cfed870/console.sql" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/jcanayls/bd_tools/anayledata.py" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jcanayls/bd_tools/getdata.py" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jcanayls/bd_tools/report.py" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jcanayls/bd_tools/washdata.py" charset="UTF-8" />
+    <file url="PROJECT" charset="UTF-8" />
+  </component>
+</project>

@@ -1,0 +1,377 @@
+# -*- coding: utf-8 -*-
+from django.db import models
+from django.utils import timezone
+
+
+#球队信息表
+class teaminfo(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    country = models.CharField('国家',max_length=64,default=None)
+    teamname = models.CharField('球队名称',max_length=128,default=None)
+    liansai = models.CharField('联赛名称',max_length=128,default=None)
+    teamguangshi = models.CharField('球队广实',max_length=64)
+    creattime = models.DateTimeField('添加时间', default=timezone.now)
+    modcreate = models.DateTimeField('修改时间', auto_now=True)
+    quanchengname = models.CharField('',max_length=128,default=None)
+    del_state = models.CharField('删除', max_length=64, default='0')
+    class Meta:
+        managed = True
+        db_table = 'teaminfo'
+
+#广实区间关系表
+class guangshirel(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    zhuteam = models.CharField('主队广实',max_length=64,default=None)
+    keteam = models.CharField('客队广实', max_length=64, default=None)
+    qujian = models.CharField('区间', max_length=64, default=None)
+    creattime = models.DateTimeField('添加时间', default=timezone.now)
+    modcreate = models.DateTimeField('修改时间', auto_now=True)
+    del_state = models.IntegerField('删除', default=0)
+    class Meta:
+        managed = True
+        db_table = 'guangshirel'
+
+#区间赔率表
+class peilvqujian(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    qujian = models.CharField('区间', max_length=64, default=None)
+    rangqiu = models.CharField('让球',max_length=64,default=None)
+    peilv = models.CharField('赔率',max_length=64,default=None)
+    shuiwei = models.CharField('水位',max_length=64,default=None)
+    creattime = models.DateTimeField('添加时间', default=timezone.now)
+    modcreate = models.DateTimeField('修改时间', auto_now=True)
+    del_state = models.IntegerField('删除', default=0)
+    class Meta:
+        managed = True
+        db_table = 'peilvqujian'
+
+# #对阵球队
+class vsmatch(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    hteamid = models.IntegerField('赛事ID',default=0)
+    hteamname = models.CharField('主队',max_length=64,default=None)
+    gteamid = models.IntegerField('赛事ID', default=0)
+    gteamname = models.CharField('客队', max_length=64, default=None)
+    matchtime = models.DateTimeField('比赛时间',default=None)
+    matchid = models.CharField('链接',max_length=128,default=None)
+    matchbh = models.CharField('链接', max_length=128, default=None)
+    liansai = models.CharField('联赛',max_length=64,default=None)
+    hpaiming = models.CharField('',max_length=64,default=None)
+    gpaiming = models.CharField('', max_length=64, default=None)
+    season = models.CharField('评论',max_length=512,default='')
+    class Meta:
+        managed = True
+        db_table = 'vsmatch'
+
+class odddata(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    matchbh = models.IntegerField(default=0)
+    company = models.CharField('公司名称', max_length=64, default=None)
+    win = models.CharField('胜', max_length=1024, default=None)
+    ping = models.CharField('', max_length=128,default=None)
+    fault = models.CharField('', max_length=128, default=None)
+    showtime = models.DateTimeField('比赛时间',default=None)
+    class Meta:
+        managed = True
+        db_table = 'odddata'
+
+# class saiguodata(models.Model):
+#     id = models.BigAutoField(primary_key=True)
+#     qici = models.CharField('期次',max_length=8,default=None)
+#     matchId = models.CharField('赛事ID',max_length=64,default=None)
+#     liansai = models.CharField('联赛',max_length=64,default=None)
+#     zhudui = models.CharField('主队',max_length=64,default=None)
+#     kedui = models.CharField('客队', max_length=64, default=None)
+#     vstime = models.DateTimeField('比赛时间',default=None)
+#     saigou = models.CharField('比赛结果', max_length=64, default=None)
+#     bifen = models.CharField('比赛结果', max_length=64, default=None)
+#     libo = models.CharField('立博赔率', max_length=64, default=None)
+#     weilian = models.CharField('威廉赔率', max_length=64, default=None)
+#     zhuduipm = models.CharField('主队排名',max_length=64,default=None)
+#     keduipm = models.CharField('客队排名', max_length=64, default=None)
+#     class Meta:
+#         managed = True
+#         db_table = 'saiguodata'
+
+class saishi(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    saishi = models.CharField('赛事',max_length=128,default=None)
+    guojia = models.CharField('国家', max_length=128, default=None)
+    class Meta:
+        managed = True
+        db_table = 'saishi'
+
+class teamhistroy(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    teamid = models.IntegerField('球队ID',default=0)
+    saiji = models.CharField('赛季',max_length=64,default=None)
+    paiming = models.IntegerField('排名',default=0)
+    liansai = models.CharField('联赛',max_length=64,default=None)
+    class Meta:
+        managed = True
+        db_table = 'teamhistroy'
+
+class Playermatchbase(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    season = models.CharField(max_length=128, blank=True, null=True)
+    matchid = models.IntegerField(blank=True, null=True)
+    teamname = models.CharField(max_length=128, blank=True, null=True)
+    playerid = models.IntegerField()
+    playername = models.CharField(max_length=128, blank=True, null=True)
+    weizhi = models.CharField(max_length=255)
+    goalnum = models.IntegerField(blank=True, null=True)
+    goalnumon = models.IntegerField(blank=True, null=True)
+    keypass = models.IntegerField(blank=True, null=True)
+    headeron = models.IntegerField(blank=True, null=True)
+    bodynum = models.IntegerField(blank=True, null=True)
+    score = models.IntegerField(blank=True, null=True)
+    keyevent = models.CharField(max_length=11, blank=True, null=True)
+    types = models.IntegerField()
+    createtime = models.DateTimeField()
+    updatetime = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'playermatchbase'
+
+class Playermatchattack(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    baseid = models.IntegerField(unique=True)
+    pastbreaknum = models.IntegerField()
+    violatednum = models.IntegerField()
+    caughtnum = models.IntegerField()
+    missnum = models.IntegerField()
+    offside = models.IntegerField()
+    createtime = models.DateTimeField()
+    updatetime = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'playermatchattack'
+
+
+class Playermatchpass(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    baseid = models.IntegerField(unique=True)
+    keypass = models.IntegerField()
+    passnum = models.IntegerField(blank=True, null=True)
+    passon = models.IntegerField(blank=True, null=True)
+    hpassnum = models.IntegerField(blank=True, null=True)
+    hpassaccnum = models.IntegerField(blank=True, null=True)
+    lpassnum = models.IntegerField(blank=True, null=True)
+    lpassaccnum = models.IntegerField(blank=True, null=True)
+    plugsnum = models.IntegerField(blank=True, null=True)
+    plugsaccnum = models.IntegerField(blank=True, null=True)
+    updatetime = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'playermatchpass'
+
+class Playerseaonattack(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    playername = models.CharField(max_length=128)
+    playerid = models.IntegerField()
+    teamname = models.CharField(max_length=100, blank=True, null=True)
+    season = models.CharField(max_length=64, blank=True, null=True)
+    substitute = models.IntegerField(blank=True, null=True)
+    firstnum = models.IntegerField(blank=True, null=True)
+    times = models.IntegerField(blank=True, null=True)
+    goals = models.IntegerField(blank=True, null=True)
+    penaltygoals = models.IntegerField(db_column='penaltyGoals', blank=True, null=True)  # Field name made lowercase.
+    shots = models.IntegerField(blank=True, null=True)
+    shotstarget = models.IntegerField(db_column='shotsTarget', blank=True, null=True)  # Field name made lowercase.
+    wasfouled = models.IntegerField(db_column='wasFouled', blank=True, null=True)  # Field name made lowercase.
+    offside = models.IntegerField(blank=True, null=True)
+    bestsum = models.IntegerField(blank=True, null=True)
+    rating = models.FloatField(blank=True, null=True)
+    types = models.IntegerField(blank=True, null=True)
+    creattime = models.DateTimeField()
+
+    class Meta:
+        managed = True
+        db_table = 'playerseaonattack'
+
+class Playerseaondefend(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    playerid = models.IntegerField()
+    playername = models.CharField(max_length=128, blank=True, null=True)
+    teamname = models.CharField(max_length=100, blank=True, null=True)
+    season = models.CharField(max_length=64, blank=True, null=True)
+    substitute = models.IntegerField(blank=True, null=True)
+    firstnum = models.IntegerField(blank=True, null=True)
+    times = models.IntegerField(blank=True, null=True)
+    tackle = models.IntegerField(blank=True, null=True)
+    interception = models.IntegerField(blank=True, null=True)
+    clearance = models.IntegerField(blank=True, null=True)
+    dispossessed = models.IntegerField(blank=True, null=True)
+    shotsblocked = models.IntegerField(db_column='shotsBlocked', blank=True, null=True)  # Field name made lowercase.
+    aerialsuc = models.IntegerField(db_column='aerialSuc', blank=True, null=True)  # Field name made lowercase.
+    foul = models.IntegerField(blank=True, null=True)
+    red = models.CharField(max_length=64, blank=True, null=True)
+    yellow = models.CharField(max_length=64, blank=True, null=True)
+    rating = models.FloatField(blank=True, null=True)
+    types = models.IntegerField(blank=True, null=True)
+    createtime = models.DateTimeField()
+
+    class Meta:
+        managed = True
+        db_table = 'playerseaondefend'
+
+class Playerseaonpass(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    playerid = models.IntegerField()
+    playername = models.CharField(max_length=128, blank=True, null=True)
+    teamname = models.CharField(max_length=100, blank=True, null=True)
+    season = models.CharField(max_length=64, blank=True, null=True)
+    substitute = models.IntegerField(blank=True, null=True)
+    firstnum = models.IntegerField(blank=True, null=True)
+    times = models.IntegerField(blank=True, null=True)
+    pass_field = models.IntegerField(db_column='pass', blank=True, null=True)  # Field renamed because it was a Python reserved word.
+    passsucpercent = models.FloatField(db_column='passSucPercent', blank=True, null=True)  # Field name made lowercase.
+    keypass = models.IntegerField(db_column='keyPass', blank=True, null=True)  # Field name made lowercase.
+    assist = models.IntegerField(blank=True, null=True)
+    longballs = models.IntegerField(db_column='longBalls', blank=True, null=True)  # Field name made lowercase.
+    throughball = models.IntegerField(blank=True, null=True)
+    dribblessuc = models.IntegerField(db_column='dribblesSuc', blank=True, null=True)  # Field name made lowercase.
+    rating = models.FloatField(blank=True, null=True)
+    types = models.IntegerField(blank=True, null=True)
+    createtime = models.DateTimeField()
+
+    class Meta:
+        managed = True
+        db_table = 'playerseaonpass'
+
+class Teamseaon(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    teamid = models.IntegerField()
+    teamname = models.CharField(max_length=128)
+    liansai = models.CharField(max_length=64)
+    season = models.CharField(max_length=64)
+    schsum = models.IntegerField()
+    goal = models.IntegerField()
+    fumble = models.IntegerField()
+    shots = models.IntegerField()
+    target = models.IntegerField()
+    shotsed = models.IntegerField()
+    passballsuc = models.IntegerField(db_column='passBallSuc')  # Field name made lowercase.
+    dribbles = models.IntegerField()
+    headersuc = models.IntegerField(db_column='headerSuc')  # Field name made lowercase.
+    offside = models.IntegerField()
+    corner = models.IntegerField()
+    tackle = models.IntegerField()
+    fouls = models.IntegerField()
+    avgcontrol = models.FloatField(db_column='avgControl')  # Field name made lowercase.
+    red = models.IntegerField()
+    yellow = models.IntegerField()
+    types = models.IntegerField()
+    createtime = models.DateTimeField()
+    updatetime = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'teamseaon'
+
+
+class Vsteaminfo(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    season = models.CharField(max_length=128)
+    mid = models.IntegerField()
+    matchname = models.CharField(max_length=128, blank=True, null=True)
+    hteamid = models.IntegerField(blank=True, null=True)
+    gteamid = models.IntegerField(blank=True, null=True)
+    hteamname = models.CharField(max_length=128, blank=True, null=True)
+    gteamname = models.CharField(max_length=128, blank=True, null=True)
+    hteampm = models.CharField(max_length=64, blank=True, null=True)
+    gteampm = models.CharField(max_length=64, blank=True, null=True)
+    hcorner = models.IntegerField()
+    gcorner = models.IntegerField()
+    hhcorner = models.IntegerField()
+    ghcorner = models.IntegerField()
+    hred = models.IntegerField(blank=True, null=True)
+    gred = models.IntegerField(blank=True, null=True)
+    hyellow = models.IntegerField(blank=True, null=True)
+    gyellow = models.IntegerField(blank=True, null=True)
+    hgoal = models.IntegerField()
+    ggoal = models.IntegerField()
+    hgoalon = models.IntegerField()
+    ggoalon = models.IntegerField()
+    hattack = models.IntegerField()
+    gattack = models.IntegerField()
+    hdangerattack = models.IntegerField()
+    gdangerattack = models.IntegerField()
+    htargetoff = models.IntegerField()
+    gtargetoff = models.IntegerField()
+    hgoalblock = models.IntegerField()
+    ggoalblock = models.IntegerField()
+    hfreekick = models.IntegerField()
+    gfreekick = models.IntegerField()
+    hballcontrolrate = models.CharField(max_length=128)
+    gballcontrolrate = models.CharField(max_length=128)
+    hhballcontrolrate = models.CharField(max_length=128)
+    ghballcontrolrate = models.CharField(max_length=128)
+    hpass = models.IntegerField()
+    gpass = models.IntegerField()
+    hpassrate = models.CharField(max_length=128)
+    gpassrate = models.CharField(max_length=128)
+    hfoul = models.IntegerField()
+    gfoul = models.IntegerField()
+    hoffside = models.IntegerField(blank=True, null=True)
+    goffside = models.IntegerField(blank=True, null=True)
+    hheader = models.IntegerField()
+    gheader = models.IntegerField()
+    hheaderon = models.IntegerField()
+    gheaderon = models.IntegerField()
+    hsaveball = models.IntegerField()
+    gsaveball = models.IntegerField()
+    htackleball = models.IntegerField()
+    gtackleball = models.IntegerField()
+    hsurpass = models.IntegerField()
+    gsurpass = models.IntegerField()
+    houtball = models.IntegerField()
+    goutball = models.IntegerField()
+    hsteal = models.IntegerField()
+    gsteal = models.IntegerField()
+    hintercept = models.IntegerField()
+    gintercept = models.IntegerField()
+    hassist = models.IntegerField()
+    gassist = models.IntegerField()
+    createtime = models.DateTimeField()
+    bifen = models.CharField(max_length=128, blank=True, null=True)
+    bbifen = models.CharField(max_length=128, blank=True, null=True)
+    result = models.CharField(max_length=64, blank=True, null=True)
+    bresult = models.CharField(max_length=64, blank=True, null=True)
+    matchtime = models.DateTimeField(blank=True, null=True)
+    will = models.CharField(max_length=300, blank=True, null=True)
+    labs = models.CharField(max_length=300, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'vsteaminfo'
+
+
+class ConciseTeamNews(models.Model):
+    id = models.AutoField(primary_key=True)
+    team_name = models.CharField(max_length=255)
+    news_time = models.TextField()
+    content = models.TextField()
+    original_content = models.TextField()
+    title = models.TextField()
+    news_types = models.TextField()
+    img = models.TextField()
+
+    class Meta:
+        managed = True
+        db_table = 'concise_teamnews'
+
+class aiarticle(models.Model):
+    id = models.AutoField(primary_key=True)
+    team_name = models.CharField(max_length=255)
+    concise_id = models.TextField()
+    content = models.TextField()
+    create_time = models.DateTimeField()
+
+    class Meta:
+        managed = True
+        db_table = 'ai_article'
+

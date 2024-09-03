@@ -1,0 +1,380 @@
+{% extends "app/base_site.html" %}
+
+{% block title %} 测试用例 {% endblock title %}
+
+{% block stylesheets %}
+    {{ block.super }}
+    <link href="/static/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet">
+    <style>
+        .select {
+        display: inline-block;
+            height: 25px;
+        width: 150px;
+        position: relative;
+        vertical-align: middle;
+        padding: 0;
+        overflow: hidden;
+        background-color: #fff;
+        color: #555;
+        border: 1px solid #aaa;
+        text-shadow: none;
+        border-radius: 4px;
+        transition: box-shadow 0.25s ease;
+        z-index: 2;
+    }
+        .select:hover {
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        }
+        .select:before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            border-top-color: #ccc;
+            top: 14px;
+            right: 10px;
+            cursor: pointer;
+            z-index: -2;
+        }
+        .select select {
+            cursor: pointer;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            background: transparent;
+            background-image: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+        .select select:focus {
+            outline: none;
+        }
+    </style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="page-title">
+                <div class="title_left">
+                    <h3> 任务管理器 </h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_content">
+                            <span scope="col" colspan="6">
+                                {% if tcList %}
+                                    <input class="button white medium" id="taskRun" value="添加"/>
+                                {% endif %}
+                                <span>
+                                {% if msgerror %}
+                                    <script>alert('{{ msgerror }}')</script>
+                                {% endif %}
+                            </span>
+                            <input class="button white medium" id="taskList" value="任务列表查询"/>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="poptask" style="display: none">
+                <div class="graybox"></div>
+                <div class="popbox">
+                    <div class="poptop">
+                        <h4>添加定时任务</h4>
+                    </div>
+                    <form action="/task/addTask" method="get">
+                        <input name="platID" value="{{ platID }}" style="display:none"/>
+                        <input name="produceID" value="{{ produceID }}" style="display:none"/>
+                        {% if projID != 0 %}
+                            <input name="projID" value="{{ projID }}" style="display:none"/>
+                        {% endif %}
+                        <div class="popcon">
+                            <div class="row" style="margin-top: 10px">
+                                任务名 <input type="text" name="taskName" value=""/>
+                            </div>
+                            <div class="row" style="margin-top: 10px">
+                                测试内容 <select id="taskMethod" name="taskMethod" class="select radius mr-5"
+                                             style="width: 20%">
+                                <option value="">请选择项目</option>
+                                {% for method in taskMethodList %}
+                                    <option value="{{ method.0 }}">{{ method.1 }}</option>
+                                {% endfor %}
+                            </select>
+                            </div>
+                            <div class="row" style="margin-top: 10px">
+                                任务类型 <select id="taskType" name="taskType" class="select radius mr-10"
+                                             style="width: 20%">
+                                <option value="">请选择</option>
+                                <option value="date">一次</option>
+                                <option value="interval">间隔</option>
+                                <option value="cron">定时</option>
+                            </select>
+                            </div>
+                            <div class="row" style="margin-top: 10px">
+                                <label>任务启动时间</label>
+                                <input name="startDate" type="text" id="startDate"
+                                       onclick="SetDate(this,'yyyy-MM-dd hh:mm:ss')" readonly="readonly"/>
+                            </div>
+                            <div id="interval" style="display: none;">
+                                <div class="row" style="margin-top: 10px">
+                                    <label>间隔时间</label>
+                                    <input name="interval" type="text" value="">分钟
+                                </div>
+                            </div>
+                            <div id="taskEnd" style="display: none;">
+                                <div class="row" style="margin-top: 10px">
+                                    <label>任务结束时间</label>
+                                    <input name="endDate" type="text" id="endDate"
+                                           onclick="SetDate(this,'yyyy-MM-dd hh:mm:ss')" readonly="readonly"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="popdown">
+                            <input class="button white medium" value="添加"/>
+                            <input class="button white medium" id="taskaddClose" value="关闭"/>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="mypop" style="display: none">
+                <div class="graybox"></div>
+                <div class="popbox">
+                    <div class="poptop">
+                        <h4>任务</h4>
+                    </div>
+                    <div class="popcon">
+                        <table class="table table-striped table-bordered dt-responsive " width="100%">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>任务名称</th>
+                                <th>执行时间</th>
+                                <th>执行状态</th>
+                                <th>执行结果</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for r in taskList %}
+                                <tr>
+                                    <td>{{ r.id }}</td>
+                                    <td>{{ r.taskName }}</td>
+                                    <td>{{ r.runDate }}</td>
+{#                                1:运行中，2:停止，0：未开始#}
+                                    {% if r.taskState == 2 %}
+                                        <td>停止</td>
+                                    {% elif r.taskState == 1 %}
+                                        <td>运行</td>
+                                    {% elif r.taskState == 0 %}
+                                        <td>未开始</td>
+                                    {% else %}
+                                        <td>失败</td>
+                                    {% endif %}
+{#                                1：执行中，2：完成，-1：失败，0：未开始#}
+                                    {% if r.taskResult == 0 %}
+                                        <td>未执行</td>
+                                    {% elif r.taskResult == 1 %}
+                                        <td>执行中</td>
+                                    {% elif r.taskResult == 2 %}
+                                        <td>完成</td>
+                                    {% else %}
+                                        <td>失败</td>
+                                    {% endif %}
+                                    <td>
+                                        <a class=" button white medium" href="/task/startTask?name={{ r.taskName }}">运行</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="poptop">
+                        <a class="button white medium" id="taskClose" value="关 闭">关 闭</a>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h4>接口测试用例</h4>
+                        </div>
+                        <div class="x_content">
+                            <span scope="col" colspan="6">
+                                <select id="platID" name="platID" class="select">
+                                            <option value="0">请选择平台</option>
+                                {% for plat in platList %}
+                                    {% if platID == plat.id %}
+                                        <option value="{{ plat.id }}" selected>{{ plat.platName }}</option>
+                                    {% else %}
+                                        <option value="{{ plat.id }}">{{ plat.platName }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                                    </select>
+                                <select id="produeID" name="produeID" class="select">
+                                            <option value="0">请选择产品</option>
+                                {% for produe in produeList %}
+                                    {% if produceID == produe.id %}
+                                        <option value="{{ produe.id }}" selected>{{ produe.producName }}</option>
+                                    {% else %}
+                                        <option value="{{ produe.id }}">{{ produe.producName }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                                    </select>
+                                <select id="projID" name="projID" class="select">
+                                            <option value="">请选择项目</option>
+                                {% for proj in projList %}
+                                    {% if projID == proj.id %}
+                                        <option value="{{ proj.id }}" selected>{{ proj.projectName }}</option>
+                                    {% else %}
+                                        <option value="{{ proj.id }}">{{ proj.projectName }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                                </select>
+                                <input value="查询" id="search" class="button white medium">
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_content">
+                            <table id="datatable-responsive"
+                                   class="table table-striped table-bordered dt-responsive " cellspacing="0"
+                                   width="100%">
+                                <thead>
+                                <tr>
+                                    <th style="width: 80px">ID</th>
+                                    <th style="width: 100px">接口用例名</th>
+                                    <th style="width: 600px">参数</th>
+                                    <th style="width: 50px">作者</th>
+                                    <th style="width: 70px">验证方式</th>
+                                    <th style="width: 80px">创建时间</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for r in tcList %}
+                                    <tr>
+                                        <td>{{ r.tcID }}</td>
+                                        <td>{{ r.testcaseName }}</td>
+                                        <td style="width: 600px">{{ r.param }}</td>
+                                        <td>{{ r.author }}</td>
+                                        <td>{{ r.validateWay }}</td>
+                                        <td>{{ r.creattime }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock content %}
+{% block javascripts %}
+
+    {{ block.super }}
+    <!-- Datatables -->
+    <script src="/static/vendors/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="/static/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/buttons.print.min.js"></script>
+    <script src="/static/vendors/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js"></script>
+    <script src="/static/vendors/datatables.net-keytable/js/dataTables.keyTable.min.js"></script>
+    <script src="/static/vendors/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/static/vendors/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+    <script src="/static/vendors/datatables.net-scroller/js/dataTables.scroller.min.js"></script>
+    <script src="/static/vendors/jszip/dist/jszip.min.js"></script>
+    <script src="/static/vendors/pdfmake/build/pdfmake.min.js"></script>
+    <script src="/static/vendors/pdfmake/build/vfs_fonts.js"></script>
+    <script src="/static/vendors/Chart.js/dist/Chart.min.js"></script>
+    <script src="/static/vendors/webdate/mycalendar.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#platID").change(function () {
+                var platID = $("#platID").val();
+                if(platID !='0') {
+                    window.location.href = "/task/tasksearch?platID=" + platID
+                }else {
+                    window.location.href = "/task/tasksearch/"
+                }
+            });
+            $("#produeID").change(function () {
+                var platID = $("#platID").val();
+                var producID = $("#produeID").val();
+                if(producID!='0') {
+                    window.location.href = "/task/tasksearch?platID=" + platID + "&produceID=" + producID
+                }else {
+                    window.location.href = "/task/tasksearch/"
+                }
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $("#search").click(function () {
+                var platID = $("#platID").val();
+                var producID = $("#produeID").val();
+                if (producID == '') {
+                    alert('请选择产品');
+                    return
+                }
+                var projID = $("#projID").val();
+                if (projID == '') {
+                    window.location.href = "/task/taskManage?platID=" + platID + "&produceID=" + producID
+                } else {
+                    window.location.href = "/task/taskManage?platID=" + platID + "&produceID=" + producID + "&projID=" + projID
+                }
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#taskList').click(function () {
+                $('.mypop').show();
+            });
+            $('#taskClose').click(function () {
+                $('.mypop').hide();
+            });
+            $('#taskRun').click(function () {
+                $('.poptask').show();
+            });
+            $('#taskaddClose').click(function () {
+                $('.poptask').hide()
+            });
+            $('#taskType').change(function () {
+                if ($('#taskType').val() == 'interval' || $('#taskType').val() == 'cron') {
+                    $('#taskEnd').show()
+                } else {
+                    $('#taskEnd').hide()
+                }
+                if ($('#taskType').val() == 'interval') {
+                    $('#interval').show()
+                } else {
+                    $('#interval').hide()
+                }
+            });
+        });
+    </script>
+    {#    <script>#}
+    {#        $(document).ready(function () {#}
+    {#            $('.mypop,.close,#cancel').click(function () {#}
+    {##}
+    {#            });#}
+    {#        });#}
+    {#    </script>#}
+{% endblock javascripts %}

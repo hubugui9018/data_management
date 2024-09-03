@@ -1,0 +1,354 @@
+{% extends "app/base_site.html" %}
+
+{% block title %}{{ mod_name }} 竞彩分析 {% endblock title %}
+
+{% block stylesheets %}
+    {{ block.super }}
+    <link href="/static/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/jq-zoomify/src/zoomify.css" rel="stylesheet">
+    <style>
+        .select {
+            display: inline-block;
+            height: 25px;
+            width: 150px;
+            position: relative;
+            vertical-align: middle;
+            padding: 0;
+            overflow: hidden;
+            background-color: #fff;
+            color: #555;
+            border: 1px solid #aaa;
+            text-shadow: none;
+            border-radius: 4px;
+            transition: box-shadow 0.25s ease;
+            z-index: 2;
+        }
+
+        .select:hover {
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .select:before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            border-top-color: #ccc;
+            top: 14px;
+            right: 10px;
+            cursor: pointer;
+            z-index: -2;
+        }
+
+        .select select {
+            cursor: pointer;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            background: transparent;
+            background-image: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+
+        .select select:focus {
+            outline: none;
+
+        }
+    </style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="x_panel">
+                        <div style="float:right"><a onclick="upvsData()" type="button"><h4>更新</h4></a></div>
+                        <div class="x_content">
+                            <div class="col-md-12 col-lg-12 col-sm-12">
+                                <table id="datatable-responsive"
+                                       class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0"
+                                       width="100%">
+                                    <thead>
+                                    <tr class="conten">
+                                        <th style="text-align:center">赛事编号</th>
+                                        <th style="text-align:center">赛事</th>
+                                        <th style="text-align:center">主队</th>
+                                        <th style="text-align:center">客队</th>
+                                        <th style="text-align:center">比赛时间</th>
+                                        <th style="text-align:center">分析</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for d in dataList %}
+                                        <tr>
+                                            <td style="text-align:center">{{ d.matchid }}</td>
+                                            <td style="text-align:center">{{ d.liansai }}</td>
+                                            <td style="text-align:center">{{ d.hteamname }}</td>
+                                            <td style="text-align:center">{{ d.gteamname }}</td>
+                                            <td style="text-align:center">{{ d.matchtime }}</td>
+                                            <td style="text-align:center">
+                                                <a id="parase" href="javascript:void(0)"
+                                                   onclick="vsprase({'matchbh':'{{ d.matchbh }}','csrfmiddlewaretoken':'{{ csrf_token }}'})">分析</a>
+                                                <a href="javascript:void(0)"
+                                                   onclick="showNews('{{ d.hteam_news|escapejs }}', '{{ d.gteam_news|escapejs }}')">新闻</a>
+                                            </td>
+
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='mypop' style='display: none'>
+                <div class="graybox"></div>
+                <div class="popbox">
+                    <div class="popcon">
+                        <div class="x_title">
+                            <h2>分析结果</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <table id="datatable-responsive"
+                                   class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0"
+                                   width="100%" style="table-layout: fixed;">
+                                <thead>
+                                <tr>
+                                    <th style="text-align:center;width:70px">区间</th>
+                                    <th style="text-align:center;width:100px">赔率</th>
+                                    <th style="text-align:center;width:400px">对比</th>
+                                </tr>
+                                </thead>
+                                <tbody id="lsparase"></tbody>
+                            </table>
+                            <div class="popdown" id="popdown">
+                                <td><input readonly class="button white medium" value="关闭" id="parseclose"/></td>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='loadpop' style='display: none'>
+                <div class="graybox"></div>
+                <div class="popbox">
+                    <div class="popcon">
+                        <div style="text-align:center">
+                            <label style="margin-left:auto;margin-right:auto">数据加载中，请稍后.....</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class='mypop newsPop' style='display: none'>
+                <div class="graybox"></div>
+                <div class="popbox">
+                    <div class="popcon">
+                        <div class="x_title">
+                            <h2>新闻</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content" id="newsContent">
+                            <!-- 新闻内容将被插入到这里 -->
+                        </div>
+                        <div class="popdown">
+                            <button id="newsClose">关闭</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock content %}
+
+{% block javascripts %}
+    {{ block.super }}
+    <!-- Chart.js -->
+    <script src="/static/vendors/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="/static/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/buttons.print.min.js"></script>
+    <script src="/static/vendors/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js"></script>
+    <script src="/static/vendors/datatables.net-keytable/js/dataTables.keyTable.min.js"></script>
+    <script src="/static/vendors/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/static/vendors/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+    <script src="/static/vendors/datatables.net-scroller/js/dataTables.scroller.min.js"></script>
+    <script src="/static/vendors/jszip/dist/jszip.min.js"></script>
+    <script src="/static/vendors/pdfmake/build/pdfmake.min.js"></script>
+    <script src="/static/vendors/pdfmake/build/vfs_fonts.js"></script>
+    <script src="/static/vendors/Chart.js/dist/Chart.min.js"></script>
+    <script src="/static/vendors/jq-zoomify/src/zoomify.js"></script>
+    <script>
+        function vsprase(param) {
+            $.ajax({
+                type: "POST",
+                url: "/jcanayls/baseanayls/",
+                data: param,
+                beforeSend: function () {
+                    $('.loadpop').show()
+                },
+                success: function (data) {
+                    var obj1 = eval(data);
+                    $.each(obj1, function (index) {
+                        var d = obj1[index];
+                        if (index == 0) {
+                            s = "<tr><td>" + d.qujian + "</td>"
+                        } else if (index == 1) {
+                            var t = "";
+                            var pl = d.peilv.split(";");
+                            s = s + "<td>";
+                            for (var i = 0; i < pl.length; i++) {
+                                t = t + "<p>" + pl[i] + "</p>"
+                            }
+                            s = s + t + "</td>"
+                        } else if (index == 2) {
+                            var t = "";
+                            s = s + "<td>";
+                            for (var i = 0; i < d.content.length; i++) {
+                                t = t + "<p>" + d.content[i] + "</p>"
+                            }
+                            s = s + t + "</td></tr>"
+                        } else if (index == 3) {
+                            var m = "";
+                            var n = "";
+                            s = s + "<tr>";
+                            if (d.tongji.length > 0) {
+                                for (var i = 0; i < d.tongji[0].length; i++) {
+                                    m = m + "<p>" + d.tongji[0][i] + "</p>"
+                                }
+                            }
+                            t = "<td colspan='2'>" + m + "</td>";
+                            if (d.tongji.length > 1) {
+                                for (var i = 0; i < d.tongji[1].length; i++) {
+                                    n = n + "<p>" + d.tongji[1][i] + "</p>"
+                                }
+                            }
+                            t = t + "<td>" + n + "</td>";
+                            s = s + t + "</tr>"
+                        } else if (index == 4) {
+                            s = s + "<tr type='hidden'><td colspan ='3'><input readonly value=" + d.addr + " id='addr' type='hidden'/>"
+                        } else {
+                            s = s + "<tr><td colspan='3'><textarea style='margin: 0px; width: 670px; height: 100px; line-height: 16px;' id='bodystr' name='bodyStr'>" + d.pinglun + "</textarea></td></tr>"
+                        }
+                    });
+                    $("#lsparase").append(s)
+                },
+                complete: function () {
+                    $(".loadpop").hide();
+                    $(".mypop").show()
+                },
+            })
+        }
+
+        $(document).on('click', '#parseclose', function () {
+            var pinglun = $("#bodystr").val();
+            var addr = $("#addr").val();
+            $.ajax({
+                type: 'Post',
+                url: '/jcanayls/savepinglun/',
+                data: {'csrfmiddlewaretoken': '{{ csrf_token }}', 'pinglun': pinglun, 'addr': addr},
+                asyn: false,
+                success: function (data) {
+
+                }
+            });
+            var lsparase = document.getElementById('lsparase');
+            for (var i = 0; i < lsparase.childElementCount;) {
+                lsparase.removeChild(lsparase.childNodes[i])
+            }
+            $('.mypop').hide()
+        });
+
+
+        function showNews(hteam_news, gteam_news) {
+            console.log('hteam_news:', hteam_news); // 添加日志输出
+            console.log('gteam_news:', gteam_news); // 添加日志输出
+
+            try {
+                var hteamNewsList = JSON.parse(hteam_news);
+                var gteamNewsList = JSON.parse(gteam_news);
+            } catch (e) {
+                console.error('JSON parse error:', e);
+                alert('数据解析错误');
+                return;
+            }
+
+            if (!hteamNewsList.length && !gteamNewsList.length) {
+                alert("没有新闻数据");
+                return;
+            }
+
+            var newsHtml = `
+            <div style="display: flex;">
+                <div style="flex: 1; padding: 10px;">
+                    <h3>主队新闻</h3>
+                    <ul>
+                        ${hteamNewsList.map(news => `<li><strong>${news.title}</strong>:${news.news_time}: ${news.content}</li>`).join('')}
+                    </ul>
+                </div>
+                <div style="flex: 1; padding: 10px;">
+                    <h3>客队新闻</h3>
+                    <ul>
+                        ${gteamNewsList.map(news => `<li><strong>${news.title}</strong>:${news.news_time}: ${news.content}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+        `;
+
+            $("#newsContent").html(newsHtml);
+            $(".newsPop").show();
+        }
+
+        $(document).on('click', '#newsClose', function () {
+            $(".newsPop").hide();
+        });
+
+
+        $(document).ready(function () {
+            $("#falsh").click(function () {
+                {#                $.get("/jcanayls/vsData/")#}
+            });
+            $("#falsh").ajaxStart(function () {
+                alert("dww")
+            });
+            $("#falsh").ajaxSend(function (o, xhr, proterty) {
+                alert("dd");
+                $(".loadpop").show()
+            });
+            $("#falsh").ajaxComplete(function (o, xhr, proterty) {
+                alert("ww");
+                $(".loadpop").show()
+            });
+        });
+
+        function upvsData() {
+            window.location.href = "/jcanayls/vsData?v=1"
+        }
+
+    </script>
+    {#    <script>#}
+    {#        $('#vstime').change(function () {#}
+    {#            var vstime = $("#vstime").val();#}
+    {#                if (vstime != '0') {#}
+    {#                    window.location.href = "/jcanayls/vsData?vstime=" + vstime#}
+    {#                } else {#}
+    {#                    window.location.href = "/jcanayls/vsData?vstime=0"#}
+    {#                }#}
+    {#        })#}
+    {##}
+    {#    </script>#}
+{% endblock javascripts %}

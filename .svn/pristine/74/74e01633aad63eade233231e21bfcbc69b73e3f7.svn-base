@@ -1,0 +1,272 @@
+{% extends "app/base_site.html" %}
+
+{% block title %}{{ mod_name }} 竞彩分析 {% endblock title %}
+
+{% block stylesheets %}
+    {{ block.super }}
+    <link href="/static/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendors/jq-zoomify/src/zoomify.css" rel="stylesheet">
+    <style>
+        .select {
+            display: inline-block;
+            height: 25px;
+            width: 150px;
+            position: relative;
+            vertical-align: middle;
+            padding: 0;
+            overflow: hidden;
+            background-color: #fff;
+            color: #555;
+            border: 1px solid #aaa;
+            text-shadow: none;
+            border-radius: 4px;
+            transition: box-shadow 0.25s ease;
+            z-index: 2;
+        }
+
+        .select:hover {
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .select:before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            border-top-color: #ccc;
+            top: 14px;
+            right: 10px;
+            cursor: pointer;
+            z-index: -2;
+        }
+
+        .select select {
+            cursor: pointer;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            background: transparent;
+            background-image: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        .select select:focus {
+            outline: none;
+        }
+    </style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <div class="x_content">
+                                <input type="date" id="startDate" value="{{ sdata }}"/>
+                                <input type="date" id="endDate" value="{{ edata }}"/>
+                                <select width='110' id="lsname" name="lsname" class="select">
+                                    <option value="">选择联赛</option>
+                                    {% for ls in liansaiList %}
+                                        {% if lsName == ls.matchname %}
+                                            <option value="{{ ls.matchname }}" selected>{{ ls.matchname }}</option>
+                                        {% else %}
+                                            <option value="{{ ls.matchname }}">{{ ls.matchname }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <select width='110' id="odd" name="odd" class="select">
+                                    {% if odd == "0" %}
+                                        <option value="0" selected>威廉</option>
+                                        <option value="1">立博</option>
+                                    {% else %}
+                                        <option value="0" >威廉</option>
+                                        <option value="1" selected>立博</option>
+                                    {% endif %}
+                                </select>
+                                <input class="button white medium addinter" value="查询" onclick="vsprase()" readonly>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 col-lg-12 col-sm-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>比赛列表</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <table id="datatable-responsive"
+                                   class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0"
+                                   width="100%">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align:center">威廉</th>
+                                        <th style="text-align:center">立博</th>
+                                        <th style="text-align:center">胜</th>
+                                        <th style="text-align:center" >平</th>
+                                        <th style="text-align:center" >负</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% if odd == '0' %}
+                                    {% for d in dataList %}
+                                        <tr>
+                                            <td style="text-align:center">{{ d.wills }}</td>
+                                            <td style="text-align:center">{{ d.labs }}<br>{{ d.labs1 }}<br>{{ d.labs2 }}</td>
+                                            <td style="text-align:center"><a href="javascript:void(0)" onclick="onhistroy('{{ d.hwin }}')">{{ d.hwin }}</a></td>
+                                            <td style="text-align:center"><a href="javascript:void(0)" onclick="onhistroy('{{ d.hwin }}')">{{ d.hflat }}</a></td>
+                                            <td style="text-align:center"><a href="javascript:void(0)" onclick="onhistroy('{{ d.hwin }}')">{{ d.hlost }}</a></td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    {% for d in dataList %}
+                                        <tr>
+                                            <td style="text-align:center">{{ d.wills }}<br>{{ d.wills1 }}<br>{{ d.wills2 }}</td>
+                                            <td style="text-align:center">{{ d.labss }}</td>
+                                            <td style="text-align:center"><a href="javascript:void(0)" onclick="onhistroy('{{ d.hwin }}')">{{ d.hwin }}</a></td>
+                                            <td style="text-align:center"><a href="javascript:void(0)" onclick="onhistroy('{{ d.hwin }}')">{{ d.hflat }}</a></td>
+                                            <td style="text-align:center"><a href="javascript:void(0)" onclick="onhistroy('{{ d.hwin }}')">{{ d.hlost }}</a></td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='hispop' style='display: none'>
+                <div class="graybox"></div>
+                <div class="popbox2">
+                    <div class="popcon">
+                        <div class="x_title">
+                            <h2>对阵历史</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <table id="datatable-responsive"
+                                   class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0"
+                                   width="100%">
+                                <thead>
+                                <tr>
+                                    <th style="text-align:center;width: 60px">时间</th>
+                                    <th style="text-align:center">{{vsmatch}}</th>
+                                    <th style="text-align:center">威廉思路</th>
+                                    <th style="text-align:center">立博思路</th>
+                                </tr>
+                                </thead>
+                                <tbody id="lshistory"></tbody>
+                            </table>
+                            <div class="popdown" id="popdown"></div>
+                            <div class="popdown">
+                                <td><input type="button" value="关闭" id="hisclose" class="button white medium"></td>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block javascripts %}
+    {{ block.super }}
+    <!-- Chart.js -->
+    <script src="/static/vendors/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="/static/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/vendors/datatables.net-buttons/js/buttons.print.min.js"></script>
+    <script src="/static/vendors/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js"></script>
+    <script src="/static/vendors/datatables.net-keytable/js/dataTables.keyTable.min.js"></script>
+    <script src="/static/vendors/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/static/vendors/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+    <script src="/static/vendors/datatables.net-scroller/js/dataTables.scroller.min.js"></script>
+    <script src="/static/vendors/jszip/dist/jszip.min.js"></script>
+    <script src="/static/vendors/pdfmake/build/pdfmake.min.js"></script>
+    <script src="/static/vendors/pdfmake/build/vfs_fonts.js"></script>
+    <script src="/static/vendors/Chart.js/dist/Chart.min.js"></script>
+    <script src="/static/vendors/jq-zoomify/src/zoomify.js"></script>
+    <script>
+        function vsprase() {
+            var startDate = $("#startDate").val();
+            var endDate = $("#endDate").val();
+            var lsname = $("#lsname").val();
+            var odd = $("#odd").val();
+            if(lsname==""){
+                alert("请选择联赛");
+                return;
+            }
+            window.location.href = "/jcanayls/oddstatist?startDate=" + startDate + "&endDate=" + endDate
+                + "&lsname=" + lsname + "&odd=" + odd
+        }
+
+        function onhistroy(vals){
+
+            $.ajax({
+                type: 'get',
+                url: '/jcanayls/odd_prase?teamvsname='+vals,
+                async: false,
+                success: function (data) {
+                    var obj1 = eval(data);
+                    $.each(obj1, function (index) {
+                        var o = obj1[index];
+                        if (index < obj1.length - 1) {
+                            s = "<tr id=row" + o.resultID + "><td>" + o.resultID + "</td><td>" + o.tcName + "</td>" +
+                                "<td>" + o.runDate + "</td><td>" + o.rversion + "</td><td>" + o.rstate + "</td><td>" +
+                                "<a id='a" + o.resultID + "' href='JavaScript:void(0)' onclick='openDialog(" + o.caseID + "," + o.rversion + "," + o.resultID + ")'>详情</a></td></tr>";
+                            $('#lshistory').append(s)
+                        } else {
+                            s = "<span>";
+                            if (o.has_pervious) {
+                                if (projID) {
+                                    s = s + "<a href='JavaScript:void(0)' onclick='fanpage(\"" + urls + "\"," + o.previous_page_number + ")'>上一页</a>"
+                                } else {
+                                    s = s + "<a href='JavaScript:void(0)' onclick='fanpage(" + urls + "," + o.previous_page_number + ")'>上一页</a>"
+                                }
+                            }
+                            s = s + "<span>  当前第" + o.number + "页/共" + o.num_pages + "页  </span>";
+                            if (o.has_next) {
+                                if (projid) {
+                                    s = s + "<a href='JavaScript:void(0)' onclick='fanpage(\"" + urls + "\"," + o.next_page_number + ")'>下一页</a>"
+                                } else {
+                                    s = s + "<a href='JavaScript:void(0)' onclick='fanpage(" + urls + "," + o.next_page_number + ")'>下一页</a>"
+                                }
+                            }
+                            s = s + "</span>";
+                            $('#popdown').append(s)
+                        }
+                    });
+                }
+            });
+            $(".hispop").show()
+        }
+
+        $(document).on('click', '#hisclose', function () {
+            var lshistory = document.getElementById('lshistory');
+            for (var i = 0; i < lshistory.childElementCount;) {
+                lshistory.removeChild(lshistory.childNodes[i])
+            }
+            var lshistory = document.getElementById('popdown');
+            for (var i = 0; i < lshistory.childElementCount;) {
+                lshistory.removeChild(lshistory.childNodes[i])
+            }
+            $('.hispop').hide()
+        });
+
+    </script>
+
+{% endblock javascripts %}

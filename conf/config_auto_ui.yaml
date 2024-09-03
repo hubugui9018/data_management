@@ -1,0 +1,8 @@
+db:
+    ip: 192.168.70.151
+#    ip: localhost
+    port: 3306
+    oname: jcdata
+#    oname: demo
+    uname: root
+    passwd: '123456'
